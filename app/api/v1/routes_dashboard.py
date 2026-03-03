@@ -14,11 +14,10 @@ from app.schemas.dashboard import (
     RecentProduct,
 )
 from app.schemas.user import UserOut
+from app.core.websocket_manager import LOW_STOCK_THRESHOLD
 from app.utils.db import get_db
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
-
-LOW_STOCK_THRESHOLD = 10
 
 
 @router.get("/", response_model=DashboardResponse)
