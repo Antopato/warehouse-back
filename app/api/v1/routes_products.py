@@ -9,10 +9,12 @@ import math
 
 
 from app import db
+from app.api.v1.dependencies import require_admin
 from app.api.v1.routes_users import read_me
 from app.models.audit_log import AuditLog
 from app.models.product import Product
 from app.schemas.product import ProductCreate, ProductOut, ProductsResponse, ProductUpdate
+from app.models.user import User
 from app.schemas.user import UserOut
 from app.utils.db import get_db
 
@@ -83,7 +85,7 @@ async def get_all_products(
 async def create_product(
     form_data: ProductCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user: User = Depends(require_admin),
 ):
     existing = await db.execute(
         select(Product).where(Product.code == form_data.code, Product.deleted_at.is_(None))
@@ -139,7 +141,7 @@ async def update_product(
     product_id: str,
     form_data: ProductUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user: User = Depends(require_admin),
 ):
     values = {k: v for k, v in form_data.model_dump().items() if v is not None}
     if not values:
@@ -163,7 +165,7 @@ async def update_product(
 async def delete_product(
     product_id: str,
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user: User = Depends(require_admin),
 ):
     from datetime import datetime, timezone
 

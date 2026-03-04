@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.dependencies import require_admin
 from app.api.v1.routes_users import read_me
 from app.models.audit_log import AuditLog
 from app.models.product import Product
@@ -132,7 +133,7 @@ async def update_sale(
     sale_id: str,
     form_data: SaleUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user: UserOut = Depends(require_admin),
 ):
     result = await db.execute(
         select(Sale).where(Sale.id == sale_id, Sale.deleted_at.is_(None))
@@ -185,7 +186,7 @@ async def update_sale(
 async def delete_sale(
     sale_id: str,
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user: UserOut = Depends(require_admin),
 ):
     result = await db.execute(
         select(Sale).where(Sale.id == sale_id, Sale.deleted_at.is_(None))

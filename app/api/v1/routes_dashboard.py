@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.v1.routes_users import read_me
+from app.api.v1.dependencies import require_admin
 from app.models.category import Category
 from app.models.product import Product
 from app.models.sale import Sale
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 @router.get("/", response_model=DashboardResponse)
 async def get_dashboard(
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user = Depends(require_admin),
 ):
     # Total products
     total_products_result = await db.execute(

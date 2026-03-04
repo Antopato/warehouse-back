@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import Date, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.v1.routes_users import read_me
+from app.api.v1.dependencies import require_admin
 from app.models.category import Category
 from app.models.product import Product
 from app.models.sale import Sale, SaleItem
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/charts", tags=["charts"])
 @router.get("/sales-by-category")
 async def sales_by_category(
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user = Depends(require_admin),
 ):
     query = (
         select(
@@ -43,7 +43,7 @@ async def sales_by_category(
 @router.get("/daily-margin")
 async def daily_margin(
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user = Depends(require_admin),
 ):
     today = datetime.now(timezone.utc).date()
     since = today - timedelta(days=29)

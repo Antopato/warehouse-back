@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import insert, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.dependencies import require_admin
 from app.api.v1.routes_users import read_me
 from app.models.audit_log import AuditLog
 from app.models.category import Category
@@ -36,7 +37,7 @@ async def get_all_categories(
 async def create_category(
     form_data: CategoryCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user: UserOut = Depends(require_admin),
 ):
     existing = await db.execute(
         select(Category).where(Category.name == form_data.name)
@@ -76,7 +77,7 @@ async def update_category(
     category_id: str,
     form_data: CategoryUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user: UserOut = Depends(require_admin),
 ):
     values = {k: v for k, v in form_data.model_dump().items() if v is not None}
     if not values:
@@ -100,7 +101,7 @@ async def update_category(
 async def delete_category(
     category_id: str,
     db: AsyncSession = Depends(get_db),
-    current_user: UserOut = Depends(read_me),
+    current_user: UserOut = Depends(require_admin),
 ):
     await db.execute(delete(Category).where(Category.id == category_id))
     await db.execute(
